@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard - MTN Attendance{% endblock %}
+{% block content %}
+  <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <!-- Page Header -->
+    <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <h1 class="text-3xl font-bold text-slate-900">Dashboard</h1>
+        <p class="mt-1 text-slate-500">Overview of attendance metrics and activity</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <button class="inline-flex items-center gap-2 rounded-2xl bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm ring-1 ring-slate-200 transition hover:bg-slate-50">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          Export
+        </button>
+        <a href="{{ url_for('events.create_event')}}" class="inline-flex items-center gap-2 rounded-2xl bg-mtn-yellow px-4 py-2.5 text-sm font-semibold text-black shadow-lg shadow-mtn-yellow/30 transition hover:bg-mtn-yellowDark">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          New Event
+        </a>
+      </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <div class="flex items-center justify-between">
+          <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50">
+            <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          </div>
+          <span class="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">Events</span>
+        </div>
+        <p class="mt-4 text-3xl font-bold text-slate-900" id="totalEventsCount">0</p>
+        <p class="mt-1 text-sm text-slate-500">Total Events</p>
+      </div>
+      
+      <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <div class="flex items-center justify-between">
+          <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50">
+            <svg class="h-6 w-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 00-8 0v4H5a2 2 0 00-2 2v5a2 2 0 002 2h14a2 2 0 002-2v-5a2 2 0 00-2-2h-3V7z"/></svg>
+          </div>
+          <span class="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">Attendees</span>
+        </div>
+        <p class="mt-4 text-3xl font-bold text-slate-900" id="totalAttendeesCount">0</p>
+        <p class="mt-1 text-sm text-slate-500">Total Attendees</p>
+      </div>
+      
+      <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <div class="flex items-center justify-between">
+          <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-50">
+            <svg class="h-6 w-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-6a3 3 0 116 0v6m-3 4a9 9 0 100-18 9 9 0 000 18z"/></svg>
+          </div>
+          <span class="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700">Registrations</span>
+        </div>
+        <p class="mt-4 text-3xl font-bold text-slate-900" id="totalRegistrationsCount">0</p>
+        <p class="mt-1 text-sm text-slate-500">Total Registrations</p>
+      </div>
+      
+      <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <div class="flex items-center justify-between">
+          <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-rose-50">
+            <svg class="h-6 w-6 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8V4m0 0L8 8m4-4l4 4M5 12a7 7 0 1114 0 7 7 0 01-14 0z"/></svg>
+          </div>
+          <span class="rounded-full bg-rose-50 px-2.5 py-1 text-xs font-medium text-rose-700">Upcoming</span>
+        </div>
+        <p class="mt-4 text-3xl font-bold text-slate-900" id="upcomingEventsCount">0</p>
+        <p class="mt-1 text-sm text-slate-500">Upcoming Events</p>
+      </div>
+    </div>
+    <div class="mt-8 grid gap-8 lg:grid-cols-3">
+      <!-- Recent Activity -->
+      <div class="lg:col-span-2">
+        <div class="rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
+          <div class="border-b border-slate-100 px-6 py-4">
+            <h2 class="text-lg font-semibold text-slate-900">Recent Activity</h2>
+          </div>
+          <div class="p-6">
+            <div class="space-y-4">
+              <div class="flex items-center gap-4">
+                <div class="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100">
+                  <svg class="h-5 w-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                </div>
+                <div class="flex-1">
+                  <p class="text-sm font-medium text-slate-900">John Doe checked in</p>
+                  <p class="text-xs text-slate-500">08:45 AM - Main Entrance</p>
+                </div>
+                <span class="text-xs text-slate-400">2 min ago</span>
+              </div>
+              <div class="flex items-center gap-4">
+                <div class="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100">
+                  <svg class="h-5 w-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <div class="flex-1">
+                  <p class="text-sm font-medium text-slate-900">Sarah Ahmed checked in late</p>
+                  <p class="text-xs text-slate-500">09:15 AM - Side Entrance</p>
+                </div>
+                <span class="text-xs text-slate-400">15 min ago</span>
+              </div>
+              <div class="flex items-center gap-4">
+                <div class="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100">
+                  <svg class="h-5 w-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                </div>
+                <div class="flex-1">
+                  <p class="text-sm font-medium text-slate-900">Michael Okon checked in</p>
+                  <p class="text-xs text-slate-500">08:30 AM - Main Entrance</p>
+                </div>
+                <span class="text-xs text-slate-400">17 min ago</span>
+              </div>
+              <div class="flex items-center gap-4">
+                <div class="flex h-10 w-10 items-center justify-center rounded-full bg-rose-100">
+                  <svg class="h-5 w-5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+                </div>
+                <div class="flex-1">
+                  <p class="text-sm font-medium text-slate-900">Grace Emmanuel absent</p>
+                  <p class="text-xs text-slate-500">No check-in recorded</p>
+                </div>
+                <span class="text-xs text-slate-400">1 hour ago</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div>
+        <div class="rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
+          <div class="border-b border-slate-100 px-6 py-4">
+            <h2 class="text-lg font-semibold text-slate-900">Quick Actions</h2>
+          </div>
+          <div class="p-6 space-y-3">
+            <a href="{{ url_for('auth.reports') }}" class="flex items-center gap-3 rounded-xl p-3 text-slate-700 transition hover:bg-slate-50">
+              <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50">
+                <svg class="h-5 w-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+              </div>
+              <span class="text-sm font-medium">View Attendance Report</span>
+            </a>
+            <a href="{{ url_for('staff.create_user')}}" class="flex items-center gap-3 rounded-xl p-3 text-slate-700 transition hover:bg-slate-50">
+              <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-50">
+                <svg class="h-5 w-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+              </div>
+              <span class="text-sm font-medium">Add New Manager</span>
+            </a>
+            <a href="{{ url_for('events.list_events')}}" class="flex items-center gap-3 rounded-xl p-3 text-slate-700 transition hover:bg-slate-50">
+              <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-50">
+                <svg class="h-5 w-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              </div>
+              <span class="text-sm font-medium">Schedule Event</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+{% block extra_js %}
+<script>
+  const totalEventsCount = document.getElementById('totalEventsCount')
+  const totalAttendeesCount = document.getElementById('totalAttendeesCount')
+  const totalRegistrationsCount = document.getElementById('totalRegistrationsCount')
+  const upcomingEventsCount = document.getElementById('upcomingEventsCount')
+
+  fetch(`/dashboard/data`, {
+    method: 'GET',
+  })
+    .then(response => response.json())
+    .then(data => {
+      const metrics = data.data || {}
+      totalEventsCount.textContent = metrics.total_events ?? 0
+      totalAttendeesCount.textContent = metrics.total_attendees ?? 0
+      totalRegistrationsCount.textContent = metrics.total_registrations ?? 0
+      upcomingEventsCount.textContent = metrics.upcoming_events ?? 0
+    })
+    .catch(error => {
+      console.error('Dashboard data error:', error)
+    })
+</script>
+{% endblock %}

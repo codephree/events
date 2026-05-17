@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="shortcut icon" href="https://bss.mtn.com.ng/dclm-web-ui//assets/icons/mtn-logo.svg" type="image/x-icon">
+    <title>{% block title %}MTN Attendance{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              mtn: {
+                yellow: '#ffc403',
+                yellowLight: '#ffd300',
+                yellowDark: '#f2c200',
+                black: '#0b0b0b',
+                dark: '#1a1a1a',
+              }
+            },
+            fontFamily: {
+              sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'sans-serif'],
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+      html { scroll-behavior: smooth; }
+      body { font-family: 'Inter', sans-serif; }
+      .glass { backdrop-filter: blur(12px); background: rgba(255,255,255,0.85); }
+      .glass-dark { backdrop-filter: blur(12px); background: rgba(11,11,11,0.85); }
+    </style>
+    {% block extra_css %}{% endblock %}
+  </head>
+  <body class="min-h-screen bg-slate-50 text-slate-900">
+    <!-- Top Navigation -->
+    <header class="fixed top-0 left-0 right-0 z-50 glass border-b border-slate-200/60">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="flex h-16 items-center justify-between">
+          <!-- Logo -->
+          <div class="flex items-center gap-3">
+            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-mtn-yellow shadow-lg shadow-mtn-yellow/25">
+              <svg class="h-6 w-6 text-black" viewBox="0 0 820 820" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h820v820H0z" fill="#ffc403"/><path d="M364.5 361.6v93.6h-25.6v-52.5L321.8 428h-13.4l-18.8-25.3v52.5h-23.4v-93.6h23.6l27 36.7 24.2-36.7zM371.9 382.8v-21.2h87.4v21.2h-30.6v72.4h-26.1v-72.4zM555.6 361.6v93.6h-21.5l-44-53.5v53.5h-23.4v-93.6H490l42.1 51.6v-51.6z"/><path d="M410 553c-75.6 0-146.9-14.1-200.7-39.8C153 486.3 122 449.7 122 410s31-76.3 87.3-103.2C263.1 281.1 334.4 267 410 267s146.9 14.1 200.7 39.8C667 333.7 698 370.3 698 410s-31 76.3-87.3 103.2C556.9 538.9 485.6 553 410 553zm0-264.9c-72.6 0-140.6 13.4-191.6 37.8-48.5 23.2-75.3 53.1-75.3 84.2s26.7 61 75.3 84.1c51 24.4 119.1 37.8 191.6 37.8s140.6-13.4 191.6-37.8c48.5-23.1 75.3-53.1 75.3-84.1s-26.7-61-75.3-84.1c-51-24.5-119-37.9-191.6-37.9z"/></svg>
+            </div>
+            <div>
+              <p class="text-xs font-bold uppercase tracking-widest text-mtn-yellowDark">MTN Nigeria</p>
+              <p class="text-sm font-semibold text-slate-900">Attendance</p>
+            </div>
+          </div>
+          
+          <!-- Desktop Nav -->
+          <nav class="hidden md:flex items-center gap-1">
+            <a href="{{ url_for('auth.dashboard') }}" class="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition">Dashboard</a>
+            <a href="{{ url_for('events.list_events') }}" class="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition">Events</a>
+            <a href="{{ url_for('staff.staff_dashboard')}}" class="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition">Managers</a>
+            <a href="{{ url_for('auth.reports') }}" class="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition">Reports</a>
+          </nav>
+          
+          <!-- User Menu -->
+          <div class="flex items-center gap-3">
+            <button class="relative rounded-full p-2 text-slate-500 hover:bg-slate-100 transition">
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+              </svg>
+              <span class="absolute top-1 right-1 h-2 w-2 rounded-full bg-mtn-yellow"></span>
+            </button>
+            <div class="flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1.5">
+              <!-- User Initials -->
+              <div class="h-7 w-7 rounded-full bg-mtn-yellow flex items-center justify-center text-xs font-bold text-black">
+                {{ current_user.name[0] }}
+              </div>
+              <!-- User Name -->
+              <a href="{{ url_for('auth.update_settings') }}" class="text-sm font-medium text-slate-700 hover:text-mtn-yellow transition">
+                {{ current_user.name }}
+              </a>
+            </div>
+            <a href="{{ url_for('auth.logout') }}" class="rounded-lg px-3 py-2 text-sm font-medium text-slate-500 hover:text-rose-600 transition">
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="pt-16 min-h-screen">
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="mx-auto max-w-7xl px-4 pt-4 sm:px-6 lg:px-8">
+            <div class="space-y-2">
+              {% for category, msg in messages %}
+                <div class="flex items-center gap-3 rounded-xl border px-4 py-3 shadow-sm {% if category == 'danger' %}border-rose-200 bg-rose-50 text-rose-700{% else %}border-emerald-200 bg-emerald-50 text-emerald-700{% endif %}">
+                  {% if category == 'danger' %}
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                  {% else %}
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                  {% endif %}
+                  <span class="text-sm font-medium">{{ msg }}</span>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-200 bg-white py-6">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col items-center justify-between gap-4 sm:flex-row">
+          <p class="text-sm text-slate-500">© 2026 MTN Nigeria. All rights reserved.</p>
+          <div class="flex items-center gap-4">
+            <a href="#" class="text-sm text-slate-500 hover:text-slate-900 transition">Privacy</a>
+            <a href="#" class="text-sm text-slate-500 hover:text-slate-900 transition">Terms</a>
+            <a href="#" class="text-sm text-slate-500 hover:text-slate-900 transition">Support</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+      <script src="https://cdn.jsdelivr.net/npm/qrcode@1.2.2/build/qrcode.min.js"></script>
+      <script>
+         function showSuccess(message) {
+           Swal.fire({
+              icon: 'success',
+              title: 'Success',
+              text: message,
+              toast: true,
+              position: 'top-end',
+              showConfirmButton: false,
+              timer: 2200,
+              timerProgressBar: true,
+              customClass: {
+                popup: 'shadow-xl rounded-2xl'
+              }
+            });
+          }
+
+          function showError(message) {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: message,
+              toast: true,
+              position: 'top-end',
+              showConfirmButton: false,
+              timer: 3200,
+              timerProgressBar: true,
+              customClass: {
+                popup: 'shadow-xl rounded-2xl'
+              }
+            });
+          }
+
+          function confirmRemoveAttendee(registrationId) {
+            Swal.fire({
+              title: 'Remove attendee?',
+              text: 'This attendee will be removed from the event.',
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonText: 'Remove',
+              cancelButtonText: 'Cancel',
+              reverseButtons: true,
+              customClass: {
+                confirmButton: 'bg-red-600 text-white px-4 py-2 rounded-xl',
+                cancelButton: 'bg-slate-100 text-slate-700 px-4 py-2 rounded-xl'
+              }
+            }).then((result) => {
+              if (result.isConfirmed) {
+                removeAttendee(registrationId);
+              }
+            });
+          }
+
+         function confirmRemoveUser(userID) {
+            Swal.fire({
+              title: 'Remove Event Manager?',
+              text: 'This manager will be removed from the event.',
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonText: 'Remove',
+              cancelButtonText: 'Cancel',
+              reverseButtons: true,
+              customClass: {
+                confirmButton: 'bg-red-600 text-white px-4 py-2 rounded-xl',
+                cancelButton: 'bg-slate-100 text-slate-700 px-4 py-2 rounded-xl'
+              }
+            }).then((result) => {
+              if (result.isConfirmed) {
+                removeUser(userID);
+              }
+            });
+          }
+        function reloadPage() {
+             location.reload();
+          }
+      </script>
+    {% block extra_js %}{% endblock %}
+  </body>
+</html>
+      

@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block title %}Reports - MTN Attendance{% endblock %}
+{% block content %}
+  <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <h1 class="text-3xl font-bold text-slate-900">Reports</h1>
+        <p class="mt-1 text-slate-500">Generate a summary report for events, attendees, and registrations.</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <a href="{{ url_for('auth.export_report') }}" class="inline-flex items-center gap-2 rounded-2xl bg-mtn-yellow px-4 py-2.5 text-sm font-semibold text-black shadow-lg shadow-mtn-yellow/30 transition hover:bg-mtn-yellowDark">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          Download CSV
+        </a>
+        <a href="{{ url_for('auth.dashboard') }}" class="inline-flex items-center gap-2 rounded-2xl bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm ring-1 ring-slate-200 transition hover:bg-slate-50">
+          Back to Dashboard
+        </a>
+      </div>
+    </div>
+
+    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+      <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <p class="text-sm text-slate-500">Total Events</p>
+        <p class="mt-4 text-3xl font-bold text-slate-900">{{ metrics.total_events }}</p>
+      </div>
+      <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <p class="text-sm text-slate-500">Total Attendees</p>
+        <p class="mt-4 text-3xl font-bold text-slate-900">{{ metrics.total_attendees }}</p>
+      </div>
+      <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <p class="text-sm text-slate-500">Total Registrations</p>
+        <p class="mt-4 text-3xl font-bold text-slate-900">{{ metrics.total_registrations }}</p>
+      </div>
+      <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <p class="text-sm text-slate-500">Upcoming Events</p>
+        <p class="mt-4 text-3xl font-bold text-slate-900">{{ metrics.upcoming_events }}</p>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 overflow-hidden">
+      <div class="border-b border-slate-100 px-6 py-4">
+        <h2 class="text-lg font-semibold text-slate-900">Recent Events</h2>
+        <p class="mt-1 text-sm text-slate-500">Latest events and attendance counts.</p>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-slate-200">
+          <thead class="bg-slate-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Name</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Date</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Location</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Attendees</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200 bg-white">
+            {% for event in events %}
+            <tr class="hover:bg-slate-50">
+              <td class="px-6 py-4 text-sm text-slate-900">{{ event.name }}</td>
+              <td class="px-6 py-4 text-sm text-slate-700">{{ event.date }}</td>
+              <td class="px-6 py-4 text-sm text-slate-700">{{ event.location }}</td>
+              <td class="px-6 py-4 text-sm text-slate-700">{{ event.registrations|length }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}Admin Login - MTN Attendance{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              mtn: {
+                yellow: '#ffc403',
+                yellowLight: '#ffd300',
+                yellowDark: '#f2c200',
+                black: '#0b0b0b',
+                dark: '#1a1a1a',
+              }
+            },
+            fontFamily: {
+              sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'sans-serif'],
+            }
+          }
+        }
+      }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      html { scroll-behavior: smooth; }
+      body { font-family: 'Inter', sans-serif; }
+      
+      /* Animated background */
+      .bg-grid {
+        background-size: 40px 40px;
+        background-image: linear-gradient(to right, rgba(0,0,0,0.03) 1px, transparent 1px),
+                          linear-gradient(to bottom, rgba(0,0,0,0.03) 1px, transparent 1px);
+      }
+      
+      .animate-float {
+        animation: float 6s ease-in-out infinite;
+      }
+      
+      @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-20px); }
+      }
+      
+      .glass-card {
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+      }
+      
+      .input-focus:focus {
+        box-shadow: 0 0 0 4px rgba(255, 196, 3, 0.15);
+      }
+    </style>
+  </head>
+  <body class="min-h-screen bg-slate-900 text-slate-900">
+    <!-- Background -->
+    <div class="relative min-h-screen overflow-hidden">
+      <!-- Grid Pattern -->
+      <div class="absolute inset-0 bg-grid"></div>
+      
+      <!-- Gradient Orbs -->
+      <div class="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-mtn-yellow/20 blur-3xl"></div>
+      <div class="absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-mtn-yellow/10 blur-3xl"></div>
+      <div class="absolute top-1/2 left-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-500/10 blur-3xl"></div>
+      
+      <!-- Main Content -->
+      <div class="relative flex min-h-screen items-center justify-center px-4 py-12">
+        <div class="w-full max-w-5xl">
+          <div class="grid gap-8 lg:grid-cols-2 lg:gap-0">
+            
+            <!-- Left Panel - Branding -->
+            <div class="relative hidden lg:block">
+              <div class="animate-float absolute inset-0 flex flex-col justify-center px-12">
+                <!-- Logo -->
+                <div class="mb-8 flex items-center gap-4">
+                  <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-mtn-yellow shadow-xl shadow-mtn-yellow/30">
+                    <svg  class="h-8 w-8 text-black" viewBox="0 0 820 820" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M0 0h820v820H0z" fill="#ffc403"/><path d="M364.5 361.6v93.6h-25.6v-52.5L321.8 428h-13.4l-18.8-25.3v52.5h-23.4v-93.6h23.6l27 36.7 24.2-36.7zM371.9 382.8v-21.2h87.4v21.2h-30.6v72.4h-26.1v-72.4zM555.6 361.6v93.6h-21.5l-44-53.5v53.5h-23.4v-93.6H490l42.1 51.6v-51.6z"/><path d="M410 553c-75.6 0-146.9-14.1-200.7-39.8C153 486.3 122 449.7 122 410s31-76.3 87.3-103.2C263.1 281.1 334.4 267 410 267s146.9 14.1 200.7 39.8C667 333.7 698 370.3 698 410s-31 76.3-87.3 103.2C556.9 538.9 485.6 553 410 553zm0-264.9c-72.6 0-140.6 13.4-191.6 37.8-48.5 23.2-75.3 53.1-75.3 84.2s26.7 61 75.3 84.1c51 24.4 119.1 37.8 191.6 37.8s140.6-13.4 191.6-37.8c48.5-23.1 75.3-53.1 75.3-84.1s-26.7-61-75.3-84.1c-51-24.5-119-37.9-191.6-37.9z"/></svg>
+
+                  </div>
+                  <div>
+                    <p class="text-xs font-bold uppercase tracking-widest text-mtn-yellowLight">MTN Nigeria</p>
+                    <p class="text-xl font-bold text-white">Attendance System</p>
+                  </div>
+                </div>
+                
+                <!-- Headline -->
+                <h1 class="text-5xl font-extrabold leading-tight text-white">
+                  In-House<br>
+                  <span class="text-mtn-yellow">Admin Portal</span>
+                </h1>
+                
+                <p class="mt-6 max-w-md text-lg text-slate-400">
+                  Secure access to manage employee attendance, track check-ins, and generate reports for MTN Nigeria operations.
+                </p>
+                
+                <!-- Features -->
+                <div class="mt-10 grid gap-4">
+                  <div class="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-4">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-mtn-yellow/20">
+                      <svg class="h-5 w-5 text-mtn-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    </div>
+                    <div>
+                      <p class="font-semibold text-white">Real-time Tracking</p>
+                      <p class="text-sm text-slate-400">Live attendance monitoring</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-4">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-mtn-yellow/20">
+                      <svg class="h-5 w-5 text-mtn-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                    </div>
+                    <div>
+                      <p class="font-semibold text-white">Enterprise Security</p>
+                      <p class="text-sm text-slate-400">Encrypted & protected</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Right Panel - Login Form -->
+            <div class="flex items-center justify-center">
+              <div class="w-full max-w-md">
+                <!-- Mobile Logo -->
+                <div class="mb-8 flex items-center justify-center gap-3 lg:hidden">
+                  <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-mtn-yellow shadow-lg shadow-mtn-yellow/30">
+                    <svg class="h-7 w-7 text-black" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.45c-.41-.11-.83-.17-1.26-.17-1.1 0-2.11.45-2.87 1.17l1.42 1.42c.56-.53.9-1.28.9-2.11 0-1.52-1.17-2.77-2.65-2.96l.6-.6 1.41 1.41-1.41 1.42-.71-.71 1.42-1.41-.6-.6c-.19.98-.19 1.99 0 2.97.19.98.58 1.89 1.11 2.63l-1.42 1.42c-.77-.53-1.28-1.42-1.28-2.38 0-.83.36-1.58.94-2.11l1.42-1.42.71.71-1.42 1.42 1.42 1.42.71-.71-1.42-1.42.6-.6c1.48.19 2.65 1.44 2.65 2.96 0 .83-.34 1.58-.9 2.11l-1.42 1.42c.53.75.92 1.66 1.11 2.63.19.98.19 1.99 0 2.97l-.6.6 1.41-1.41-.6-.6z"/>
+                    </svg>
+                  </div>
+                  <div class="text-center">
+                    <p class="text-xs font-bold uppercase tracking-widest text-mtn-yellowLight">MTN Nigeria</p>
+                    <p class="font-semibold text-white">Attendance Admin</p>
+                  </div>
+                </div>
+                
+                <!-- Login Card -->
+                <div class="glass-card rounded-3xl p-8 shadow-2xl shadow-black/20">
+                  <div class="text-center">
+                    <h2 class="text-2xl font-bold text-slate-900">Welcome back</h2>
+                    <p class="mt-2 text-sm text-slate-500">Sign in to your admin account</p>
+                  </div>
+                  
+                  <!-- Flash Messages -->
+                  {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                      <div class="mt-6 space-y-3">
+                        {% for category, msg in messages %}
+                          <div class="flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm font-medium {% if category == 'danger' %}border-rose-200 bg-rose-50 text-rose-700{% else %}border-emerald-200 bg-emerald-50 text-emerald-700{% endif %}">
+                            {% if category == 'danger' %}
+                              <svg class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            {% else %}
+                              <svg class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            {% endif %}
+                            <span>{{ msg }}</span>
+                          </div>
+                        {% endfor %}
+                      </div>
+                    {% endif %}
+                  {% endwith %}
+                  
+                  <!-- Login Form -->
+                  <form method="post" class="mt-6 space-y-5">
+                    {{ form.csrf_token }}
+                    
+                    <div>
+                      <label for="username" class="block text-sm font-semibold text-slate-700">Username</label>
+                      <div class="mt-2">
+                        {{ form.username(class='w-full rounded-2xl border border-slate-200 bg-slate-50/50 px-4 py-3.5 text-slate-900 outline-none transition-all duration-200 input-focus focus:border-mtn-yellow focus:bg-white', placeholder='Enter your username') }}
+                        {% if form.username.errors %}
+                          <p class="mt-2 text-sm text-rose-500">{{ form.username.errors[0] }}</p>
+                        {% endif %}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label for="password" class="block text-sm font-semibold text-slate-700">Password</label>
+                      <div class="mt-2">
+                        {{ form.password(class='w-full rounded-2xl border border-slate-200 bg-slate-50/50 px-4 py-3.5 text-slate-900 outline-none transition-all duration-200 input-focus focus:border-mtn-yellow focus:bg-white', placeholder='Enter your password') }}
+                        {% if form.password.errors %}
+                          <p class="mt-2 text-sm text-rose-500">{{ form.password.errors[0] }}</p>
+                        {% endif %}
+                      </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                      <label class="flex items-center gap-2">
+                        <input type="checkbox" class="h-4 w-4 rounded border-slate-300 text-mtn-yellow focus:ring-mtn-yellow/50">
+                        <span class="text-sm text-slate-600">Remember me</span>
+                      </label>
+                      <a href="#" class="text-sm font-medium text-mtn-yellowDark hover:text-mtn-yellow">Forgot password?</a>
+                    </div>
+                    
+                    <button type="submit" class="w-full rounded-2xl bg-mtn-yellow py-3.5 text-base font-semibold text-black shadow-lg shadow-mtn-yellow/30 transition-all duration-200 hover:bg-mtn-yellowDark hover:shadow-xl hover:shadow-mtn-yellow/40 focus:outline-none focus:ring-2 focus:ring-mtn-yellow focus:ring-offset-2">
+                      Sign In
+                    </button>
+                  </form>
+                  
+                  <!-- Footer Note -->
+                  <div class="mt-6 text-center">
+                    <p class="text-xs text-slate-400">Restricted access for authorized personnel only</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Event - MTN Attendance{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+  <!-- Page Header -->
+  <div class="mb-8">
+    <div class="flex items-center gap-4">
+      <button onclick="window.history.back()" class="inline-flex items-center gap-2 rounded-xl bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm ring-1 ring-slate-200 transition hover:bg-slate-50">
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+        Back
+      </button>
+      <div>
+        <h1 class="text-3xl font-bold text-slate-900">Create New Event</h1>
+        <p class="mt-1 text-slate-500">Add a new event to the attendance system</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create Form -->
+  <div class="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-slate-200">
+    <form method="POST" class="space-y-6">
+      <div>
+        <label for="name" class="block text-sm font-semibold text-slate-900">Event Name</label>
+        <div class="mt-2">
+          <input type="text" name="name" id="name" required
+                 class="block w-full rounded-xl border-0 px-4 py-3 text-slate-900 shadow-sm ring-1 ring-slate-200 placeholder:text-slate-400 focus:ring-2 focus:ring-mtn-yellow focus:ring-inset sm:text-sm sm:leading-6"
+                 placeholder="Enter event name">
+        </div>
+      </div>
+
+      <div>
+        <label for="date" class="block text-sm font-semibold text-slate-900">Event Date</label>
+        <div class="mt-2">
+          <input type="datetime-local" name="date" id="date" required title="Event Date"
+                 class="block w-full rounded-xl border-0 px-4 py-3 text-slate-900 shadow-sm ring-1 ring-slate-200 placeholder:text-slate-400 focus:ring-2 focus:ring-mtn-yellow focus:ring-inset sm:text-sm sm:leading-6" />
+        </div>
+      </div>
+
+      <div>
+        <label for="location" class="block text-sm font-semibold text-slate-900">Location</label>
+        <div class="mt-2">
+          <input type="text" name="location" id="location" required
+                 class="block w-full rounded-xl border-0 px-4 py-3 text-slate-900 shadow-sm ring-1 ring-slate-200 placeholder:text-slate-400 focus:ring-2 focus:ring-mtn-yellow focus:ring-inset sm:text-sm sm:leading-6"
+                 placeholder="Enter event location">
+        </div>
+      </div>
+      <div>
+        <label for="description" class="block text-sm font-semibold text-slate-900">Description</label>
+        <div class="mt-2">
+          <textarea name="description" id="description" rows="4"
+                    class="block w-full rounded-xl border-0 px-4 py-3 text-slate-900 shadow-sm ring-1 ring-slate-200 placeholder:text-slate-400 focus:ring-2 focus:ring-mtn-yellow focus:ring-inset sm:text-sm sm:leading-6"
+                    placeholder="Enter event description (optional)"></textarea>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-4 pt-6">
+        <button type="button" onclick="window.history.back()"
+                class="rounded-xl bg-white px-6 py-3 text-sm font-semibold text-slate-900 shadow-sm ring-1 ring-slate-200 hover:bg-slate-50">
+          Cancel
+        </button>
+        <button type="submit"
+                class="rounded-xl bg-mtn-yellow px-6 py-3 text-sm font-semibold text-black shadow-lg shadow-mtn-yellow/30 hover:bg-mtn-yellowDark focus:ring-2 focus:ring-mtn-yellow focus:ring-offset-2">
+          Create Event
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
