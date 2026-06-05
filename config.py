@@ -1,9 +1,12 @@
 import os
 from datetime import timedelta
 import secrets
-from dotenv import load_dotenv
 
-load_dotenv()
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
 
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY', secrets.token_hex(32))
