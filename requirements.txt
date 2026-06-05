@@ -70,6 +70,7 @@ typing-inspection==0.4.2
 typing_extensions==4.15.0
 tzdata==2025.3
 udemydl==0.6.1
+gunicorn==26.0.0
 urllib3==2.5.0
 uvicorn==0.46.0
 virtualenv==20.31.2

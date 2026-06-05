@@ -1,6 +1,9 @@
 import os
 from datetime import timedelta
 import secrets
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY', secrets.token_hex(32))
@@ -13,3 +16,16 @@ class Config:
     JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY', secrets.token_hex(32))
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=int(os.environ.get('TOKEN_EXPIRATION_MINUTES', 30)))
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=int(os.environ.get('REFRESH_TOKEN_EXPIRATION_DAYS', 7)))
+
+class DevelopmentConfig(Config):
+    DEBUG = True
+
+class ProductionConfig(Config):
+    DEBUG = False
+
+config = {
+    'development': DevelopmentConfig,
+    'production': ProductionConfig,
+    'default': DevelopmentConfig    
+}
+
