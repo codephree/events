@@ -21,11 +21,30 @@ def list_events():
                         .join(User, Event.created_by == User.id) \
                         .order_by(Event.date.asc())
 
+    all_events = events_query.all()
     events_pagination = events_query.paginate(page=page, per_page=per_page, error_out=False)
-    events = events_pagination.items  
+    events = events_pagination.items
     current_time = datetime.datetime.now()
 
-    return render_template('events/index.html', events=events, pagination=events_pagination, current_time=current_time)
+    calendar_events = [
+        {
+            'id': str(event.id),
+            'name': event.name,
+            'date': event.date.isoformat(),
+            'location': event.location or '',
+            'creator': event.creator.name if event.creator else 'Unknown Organizer',
+            'open': event.date >= current_time
+        }
+        for event in all_events
+    ]
+
+    return render_template(
+        'events/index.html',
+        events=events,
+        calendar_events=calendar_events,
+        pagination=events_pagination,
+        current_time=current_time
+    )
   
 
 @events_bp.route('/<string:event_id>', methods=['GET'])

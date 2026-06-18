@@ -52,6 +52,11 @@
             <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" />
           </svg>
         </button>
+        <button onclick="toggleViewMode('calendar')" id="calendarViewBtn" class="p-2 rounded-md text-slate-600 hover:text-slate-900 focus:outline-none">
+          <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zM4 8h12v2H4V8zm0 4h4v2H4v-2zm6 0h6v2h-6v-2z" />
+          </svg>
+        </button>
       </div>
       <a href="{{ url_for('events.create_event') }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-mtn-yellow hover:bg-mtn-yellowDark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-mtn-yellow">
         <svg class="-ml-1 mr-2 h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
@@ -66,6 +71,24 @@
         Import Attendees
       </button>
     </div>
+  </div>
+
+  <div id="calendarContainer" class="hidden">
+    <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <h2 id="calendarMonthLabel" class="text-xl font-semibold text-slate-900"></h2>
+        <p class="text-sm text-slate-500">Browse events by date and click any day to manage the linked event.</p>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <button type="button" onclick="changeCalendarMonth(-1)" class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">Previous</button>
+        <button type="button" onclick="goToToday()" class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">Today</button>
+        <button type="button" onclick="changeCalendarMonth(1)" class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">Next</button>
+      </div>
+    </div>
+    <div class="grid grid-cols-7 gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-3 text-center text-xs font-semibold uppercase tracking-wide text-slate-500">
+      <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+    </div>
+    <div id="calendarGrid" class="grid grid-cols-7 gap-2 mt-3"></div>
   </div>
 
   <div id="eventsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -114,7 +137,7 @@
   </div>
 
   {% if pagination and pagination.pages > 1 %}
-  <nav class="mt-12 flex items-center justify-center gap-2">
+  <nav id="paginationNav" class="mt-12 flex items-center justify-center gap-2">
     {% if pagination.has_prev %}
     <a href="{{ url_for('events.list_events', page=pagination.prev_num) }}" class="inline-flex items-center px-4 py-2 border border-slate-300 text-sm font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-mtn-yellow">
       <svg class="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -358,23 +381,44 @@
 
 {% block extra_js %}
 <script>
- 
+  const calendarEvents = {{ calendar_events | tojson | safe }};
+  const calendarState = { currentYear: new Date().getFullYear(), currentMonth: new Date().getMonth() };
+  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
   // View toggle functions
   function toggleViewMode(mode) {
-    const container = document.getElementById('eventsContainer');
+    const eventsContainer = document.getElementById('eventsContainer');
+    const calendarContainer = document.getElementById('calendarContainer');
+    const pagination = document.getElementById('paginationNav');
     const gridBtn = document.getElementById('gridViewBtn');
     const listBtn = document.getElementById('listViewBtn');
-    
+    const calendarBtn = document.getElementById('calendarViewBtn');
+
+    gridBtn.classList.remove('bg-white', 'shadow-sm', 'border', 'border-slate-200');
+    listBtn.classList.remove('bg-white', 'shadow-sm', 'border', 'border-slate-200');
+    calendarBtn.classList.remove('bg-white', 'shadow-sm', 'border', 'border-slate-200');
+
     if (mode === 'grid') {
-      container.classList.remove('list-view');
+      eventsContainer.classList.remove('list-view');
+      eventsContainer.classList.remove('hidden');
+      calendarContainer.classList.add('hidden');
+      if (pagination) pagination.classList.remove('hidden');
       gridBtn.classList.add('bg-white', 'shadow-sm', 'border', 'border-slate-200');
-      listBtn.classList.remove('bg-white', 'shadow-sm', 'border', 'border-slate-200');
       localStorage.setItem('eventViewMode', 'grid');
     } else if (mode === 'list') {
-      container.classList.add('list-view');
+      eventsContainer.classList.add('list-view');
+      eventsContainer.classList.remove('hidden');
+      calendarContainer.classList.add('hidden');
+      if (pagination) pagination.classList.remove('hidden');
       listBtn.classList.add('bg-white', 'shadow-sm', 'border', 'border-slate-200');
-      gridBtn.classList.remove('bg-white', 'shadow-sm', 'border', 'border-slate-200');
       localStorage.setItem('eventViewMode', 'list');
+    } else if (mode === 'calendar') {
+      eventsContainer.classList.add('hidden');
+      calendarContainer.classList.remove('hidden');
+      if (pagination) pagination.classList.add('hidden');
+      calendarBtn.classList.add('bg-white', 'shadow-sm', 'border', 'border-slate-200');
+      localStorage.setItem('eventViewMode', 'calendar');
+      renderCalendar(calendarState.currentMonth, calendarState.currentYear);
     }
   }
 
@@ -383,6 +427,89 @@
     const savedViewMode = localStorage.getItem('eventViewMode') || 'grid';
     toggleViewMode(savedViewMode);
   });
+
+  function changeCalendarMonth(offset) {
+    const nextMonth = calendarState.currentMonth + offset;
+    const nextYear = calendarState.currentYear + Math.floor(nextMonth / 12);
+    calendarState.currentMonth = ((nextMonth % 12) + 12) % 12;
+    calendarState.currentYear = nextYear;
+    renderCalendar(calendarState.currentMonth, calendarState.currentYear);
+  }
+
+  function goToToday() {
+    const today = new Date();
+    calendarState.currentYear = today.getFullYear();
+    calendarState.currentMonth = today.getMonth();
+    renderCalendar(calendarState.currentMonth, calendarState.currentYear);
+  }
+
+  function renderCalendar(month, year) {
+    calendarState.currentMonth = month;
+    calendarState.currentYear = year;
+    const firstDay = new Date(year, month, 1);
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const startDay = firstDay.getDay();
+
+    document.getElementById('calendarMonthLabel').textContent = `${monthNames[month]} ${year}`;
+    const grid = document.getElementById('calendarGrid');
+    grid.innerHTML = '';
+
+    for (let i = 0; i < startDay; i++) {
+      const emptyCell = document.createElement('div');
+      emptyCell.className = 'calendar-day empty';
+      grid.appendChild(emptyCell);
+    }
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dateObject = new Date(year, month, day);
+      const dateKey = dateObject.toISOString().slice(0, 10);
+      const dayEvents = calendarEvents.filter(evt => evt.date.slice(0, 10) === dateKey);
+      const cell = document.createElement('button');
+      cell.type = 'button';
+      cell.className = 'calendar-day text-left rounded-2xl border border-slate-200 bg-white p-3 hover:border-slate-300 hover:bg-slate-50 focus:outline-none';
+      if (dayEvents.length) {
+        cell.classList.add('cursor-pointer');
+      } else {
+        cell.classList.add('cursor-default');
+      }
+
+      let content = `<div class="flex items-center justify-between gap-2"><span class="text-sm font-semibold text-slate-900">${day}</span>`;
+      if (dayEvents.length) {
+        content += `<span class="rounded-full bg-mtn-yellow/10 px-2 py-0.5 text-[11px] font-semibold text-mtn-yellow">${dayEvents.length}</span>`;
+      }
+      content += '</div>';
+
+      if (dayEvents.length) {
+        content += '<div class="mt-3 space-y-2">';
+        dayEvents.slice(0, 3).forEach(evt => {
+          const title = evt.name.length > 24 ? evt.name.substring(0, 24) + '…' : evt.name;
+          content += `<div class="rounded-2xl bg-slate-50 px-3 py-2 text-xs font-medium text-slate-700">${title}</div>`;
+        });
+        if (dayEvents.length > 3) {
+          content += `<div class="text-[11px] text-slate-500">+${dayEvents.length - 3} more</div>`;
+        }
+        content += '</div>';
+      }
+      cell.innerHTML = content;
+
+      if (dayEvents.length) {
+        cell.addEventListener('click', () => openCalendarEvent(dayEvents[0]));
+      }
+
+      grid.appendChild(cell);
+    }
+  }
+
+  function openCalendarEvent(eventData) {
+    if (!eventData || !eventData.id) return;
+    const fakeButton = { dataset: {
+      eventId: eventData.id,
+      eventName: eventData.name,
+      eventDate: eventData.date,
+      eventLocation: eventData.location
+    }};
+    openEventDetailsModal(fakeButton);
+  }
 
   // Import modal functions
   function openImportModal() {
@@ -531,7 +658,7 @@
     document.body.style.overflow = 'auto';
     document.getElementById('eventDetailsForm').reset();
     document.getElementById('eventDetailsAttendeeList').innerHTML = '';
-    reloadPage();
+    reloadEventList();
   }
 
   function submitEventDetails(e) {
