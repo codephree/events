@@ -239,6 +239,46 @@ def remove_event_attendee(event_id):
         db.session.rollback()
         return jsonify({'success': False, 'message': str(e)}), 500
     
+@events_bp.route('/mark-attendance', methods=['POST', 'GET'])
+@login_required
+def mark_attendance():
+    if request.method == 'GET':
+        events = Event.query.order_by(Event.date.asc()).all()
+        return render_template('events/mark_attendance.html', events=events)
+
+    data = request.get_json(silent=True) or request.form
+    event_id = data.get('event_id')
+    attendee_qr_value = data.get('attendee_id')
+
+    if not event_id or not attendee_qr_value:
+        return jsonify({'success': False, 'message': 'Event ID and Attendee QR value are required.'}), 400
+
+    event = Event.query.get(event_id)
+    if not event:
+        return jsonify({'success': False, 'message': 'Event not found.'}), 404
+
+    attendee = Attendee.query.filter_by(attendee_id=attendee_qr_value).first()
+    if not attendee:
+        return jsonify({'success': False, 'message': 'Attendee QR code not found.'}), 404
+
+    registration = Registration.query.filter_by(event_id=event.id, attendee_id=attendee.id).first()
+    if not registration:
+        return jsonify({'success': False, 'message': 'Registration not found for the selected event and attendee.'}), 404
+
+    if registration.checked_in:
+        return jsonify({'success': True, 'message': 'Attendee was already checked in.', 'already_checked_in': True})
+
+    try:
+        registration.checked_in = True
+        registration.checked_in_at = datetime.datetime.utcnow()
+        registration.checked_in_by = current_user.id
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Attendance marked successfully.', 'attendee_name': attendee.name, 'email': attendee.email})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+
 def generate_attendee_id():
     return 'A' + datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')
 

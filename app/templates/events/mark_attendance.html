@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+
+{% block title %}Mark Attendance{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+  <div class="mb-8 space-y-4">
+    <div>
+      <h1 class="text-3xl font-bold text-slate-900">Mark Attendance</h1>
+      <p class="mt-2 text-sm text-slate-500">Select an event, then scan the attendee QR code to register check-in.</p>
+    </div>
+
+    <div class="grid gap-6 lg:grid-cols-[1.5fr_1fr]">
+      <div class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <div class="grid gap-6 sm:grid-cols-2">
+          <div>
+            <label for="eventSelect" class="block text-sm font-semibold text-slate-900">Event</label>
+            <select id="eventSelect" class="mt-2 block w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-mtn-yellow focus:ring-mtn-yellow">
+              <option value="">Choose event</option>
+              {% for event in events %}
+                <option value="{{ event.id }}">{{ event.name }} — {{ event.date.strftime('%Y-%m-%d %H:%M') }} @ {{ event.location }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <p class="text-sm font-semibold text-slate-900">Logged in as</p>
+              <p class="mt-2 text-base font-medium text-slate-700">{{ current_user.name }}</p>
+              <p class="text-sm text-slate-500">{{ current_user.role or 'Event Manager' }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 rounded-3xl border border-slate-200 bg-slate-50 p-6">
+          <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <h2 class="text-lg font-semibold text-slate-900">QR Scanner</h2>
+              <p class="mt-1 text-sm text-slate-500">Use your device camera to scan attendee QR codes.</p>
+            </div>
+            <div class="flex flex-col gap-3 sm:flex-row">
+              <button id="startScannerBtn" type="button" class="inline-flex items-center justify-center rounded-2xl bg-mtn-yellow px-4 py-3 text-sm font-semibold text-black shadow-sm hover:bg-mtn-yellowDark">Start scanner</button>
+              <button id="stopScannerBtn" type="button" class="inline-flex items-center justify-center rounded-2xl bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-200">Stop scanner</button>
+            </div>
+          </div>
+
+          <div class="mt-6 rounded-3xl border border-dashed border-slate-200 bg-white p-4">
+            <div id="qr-reader" class="scanner-card"></div>
+            <div id="scannerStatus" class="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">Scanner is stopped.</div>
+          </div>
+        </div>
+
+        <div class="mt-6 rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+          <h2 class="text-lg font-semibold text-slate-900">Manual check-in</h2>
+          <p class="mt-1 text-sm text-slate-500">Paste the attendee code from the printed QR label and submit.</p>
+          <form id="manualCheckinForm" class="mt-6 space-y-4">
+            <div>
+              <label for="manualAttendeeId" class="block text-sm font-semibold text-slate-900">Attendee QR value</label>
+              <input id="manualAttendeeId" type="text" placeholder="Example: A20260701123456789000" class="mt-2 block w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-mtn-yellow focus:ring-mtn-yellow" />
+            </div>
+            <div class="flex flex-col gap-3 sm:flex-row sm:justify-end">
+              <button type="button" id="manualCheckinBtn" class="inline-flex items-center justify-center rounded-2xl bg-mtn-yellow px-4 py-3 text-sm font-semibold text-black shadow-sm hover:bg-mtn-yellowDark">Mark manually</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="space-y-6">
+        <div class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+          <h2 class="text-lg font-semibold text-slate-900">Scan result</h2>
+          <div id="scanResult" class="mt-4 rounded-3xl border border-slate-200 bg-slate-50 p-5 text-sm text-slate-700">No scan performed yet.</div>
+        </div>
+
+        <div class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+          <div class="flex items-center justify-between gap-4">
+            <div>
+              <h2 class="text-lg font-semibold text-slate-900">Attendance log</h2>
+              <p class="mt-1 text-sm text-slate-500">Recent check-ins during this session.</p>
+            </div>
+          </div>
+          <div id="attendanceLog" class="mt-5 space-y-3 text-sm text-slate-700">
+            <p class="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-4 text-slate-500">No check-ins yet.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js" integrity="sha512-r6rDA7W6ZeQhvl8S7yRVQUKVHdexq+GAlNkNNqVC7YyIV+NwqCTJe2hDWCiffTyRNOeGEzRRJ9ifvRm/HCzGYg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+  const eventSelect = document.getElementById('eventSelect');
+  const scanResult = document.getElementById('scanResult');
+  const scannerStatus = document.getElementById('scannerStatus');
+  const attendanceLog = document.getElementById('attendanceLog');
+  const manualAttendeeId = document.getElementById('manualAttendeeId');
+  const startScannerBtn = document.getElementById('startScannerBtn');
+  const stopScannerBtn = document.getElementById('stopScannerBtn');
+  const manualCheckinBtn = document.getElementById('manualCheckinBtn');
+
+  let html5QrCode = null;
+  let isScannerRunning = false;
+
+  function updateScannerStatus(message, isError = false) {
+    scannerStatus.textContent = message;
+    scannerStatus.className = `mt-4 rounded-2xl border ${isError ? 'border-rose-200 bg-rose-50 text-rose-700' : 'border-slate-200 bg-slate-50 text-slate-600'} p-4 text-sm`;
+  }
+
+  function addAttendanceLog(message, success = true) {
+    const entry = document.createElement('div');
+    entry.className = `rounded-2xl border px-4 py-3 ${success ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-rose-200 bg-rose-50 text-rose-700'}`;
+    entry.textContent = message;
+    attendanceLog.prepend(entry);
+
+    if (attendanceLog.children.length > 10) {
+      attendanceLog.removeChild(attendanceLog.lastChild);
+    }
+  }
+
+  function getSelectedEventId() {
+    return eventSelect.value;
+  }
+
+  async function markAttendance(attendeeId) {
+    const eventId = getSelectedEventId();
+    if (!eventId) {
+      updateScannerStatus('Select an event before checking in attendees.', true);
+      return;
+    }
+    if (!attendeeId) {
+      updateScannerStatus('Attendee code is required.', true);
+      return;
+    }
+
+    scanResult.textContent = 'Submitting attendance...';
+    try {
+      const response = await fetch('/events/mark-attendance', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ event_id: eventId, attendee_id: attendeeId })
+      });
+      const data = await response.json();
+      if (data.success) {
+        const message = data.already_checked_in ? `Already checked in: ${data.attendee_name || attendeeId}` : `Checked in successfully: ${data.attendee_name || attendeeId}`;
+        scanResult.textContent = message;
+        addAttendanceLog(message, true);
+        updateScannerStatus('Last operation completed successfully.');
+      } else {
+        scanResult.textContent = data.message || 'Unable to register attendance.';
+        addAttendanceLog(`Error: ${data.message || 'Unknown error'}`, false);
+        updateScannerStatus(data.message || 'Unable to register attendance.', true);
+      }
+    } catch (error) {
+      scanResult.textContent = 'Failed to submit attendance. Check your connection.';
+      addAttendanceLog(`Network error: ${error.message}`, false);
+      updateScannerStatus('Failed to submit attendance. Check your connection.', true);
+    }
+  }
+
+  function onScanSuccess(decodedText) {
+    if (!decodedText) {
+      return;
+    }
+    scanResult.textContent = `Scanned attendee code: ${decodedText}`;
+    markAttendance(decodedText);
+  }
+
+  function onScanError(errorMessage) {
+    console.debug('QR scan error:', errorMessage);
+  }
+
+  async function startScanner() {
+    const eventId = getSelectedEventId();
+    if (!eventId) {
+      updateScannerStatus('Select an event before starting the scanner.', true);
+      return;
+    }
+
+    if (isScannerRunning) {
+      updateScannerStatus('Scanner is already running.');
+      return;
+    }
+
+    if (!html5QrCode) {
+      html5QrCode = new Html5Qrcode('qr-reader');
+    }
+
+    try {
+      await html5QrCode.start(
+        { facingMode: 'environment' },
+        { fps: 10, qrbox: 250 },
+        onScanSuccess,
+        onScanError
+      );
+      isScannerRunning = true;
+      updateScannerStatus('Scanner started. Hold the camera over the attendee QR code.');
+    } catch (error) {
+      updateScannerStatus(`Unable to start scanner: ${error.message || error}`, true);
+    }
+  }
+
+  async function stopScanner() {
+    if (!html5QrCode || !isScannerRunning) {
+      updateScannerStatus('Scanner is already stopped.');
+      return;
+    }
+
+    try {
+      await html5QrCode.stop();
+      isScannerRunning = false;
+      updateScannerStatus('Scanner stopped.');
+    } catch (error) {
+      updateScannerStatus(`Error stopping scanner: ${error.message || error}`, true);
+    }
+  }
+
+  startScannerBtn.addEventListener('click', startScanner);
+  stopScannerBtn.addEventListener('click', stopScanner);
+  manualCheckinBtn.addEventListener('click', () => markAttendance(manualAttendeeId.value.trim()));
+
+  window.addEventListener('beforeunload', async () => {
+    if (html5QrCode && isScannerRunning) {
+      await html5QrCode.stop().catch(() => {});
+    }
+  });
+</script>
+{% endblock %}
